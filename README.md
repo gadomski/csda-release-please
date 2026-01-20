@@ -7,5 +7,6 @@ To use:
 - name: CSDA Release Please
   uses: gadomski/csda-release-please
   with:
+    token: ${{ secrets.GITHUB_TOKEN }}
     versioning-strategy: csda
 ```
