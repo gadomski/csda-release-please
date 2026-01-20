@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && esbuild src/action.ts --bundle --platform=node --target=node20 --outfile=dist/action.js",
+    "build": "tsc && esbuild src/action.ts --bundle --platform=node --target=node20 --outfile=dist/action.cjs",
     "clean": "rm -rf dist"
   },
   "dependencies": {

@@ -5,5 +5,5 @@ To use:
 
 ```yaml
 - name: CSDA Release Please
-  uses: gadomski/csda-release-please@v1
+  uses: gadomski/csda-release-please
 ```
