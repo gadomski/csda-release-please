@@ -23,11 +23,11 @@ jobs:
         run: |
           expected_major=$(date +%y)
           month=$(date +%-m)
-          if [ $month -le 2 ]; then
+          if [ $month -le 3 ]; then
             expected_minor=2
-          elif [ $month -le 5 ]; then
+          elif [ $month -le 6 ]; then
             expected_minor=3
-          elif [ $month -le 8 ]; then
+          elif [ $month -le 9 ]; then
             expected_minor=4
           else
             expected_minor=1
@@ -37,7 +37,7 @@ jobs:
           IFS='.' read -r major minor patch <<< "$current"
 
           if [ "$major" -ne "$expected_major" ]; then
-            echo "$expected_major.$expected_minor.0" > version.txt
+            echo "$expected_major.2.0" > version.txt
             echo "message=chore: bump major version for new year" >> $GITHUB_ENV
           elif [ "$minor" -ne "$expected_minor" ]; then
             echo "$major.$expected_minor.0" > version.txt
