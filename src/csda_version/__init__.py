@@ -15,9 +15,9 @@ def get_next_version(csda_version: str, tag: str) -> str:
         and csda_version_parts[1] == tag_parts[1]
         and csda_version_parts[2] == tag_parts[2]
     ):
-        return ".".join(tag_parts[0:3] + [str(int(tag_parts[3]) + 1)])
+        return ".".join(tag_parts[0:3]) + "-" + str(int(tag_parts[3]) + 1)
     else:
-        return ".".join(csda_version_parts + ["0"])
+        return ".".join(csda_version_parts) + "-0"
 
 
 if __name__ == "__main__":
