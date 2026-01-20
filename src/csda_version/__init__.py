@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from typing import Literal
 
 import click
@@ -114,23 +113,10 @@ def cli() -> None:
 @cli.command("next-version")
 @click.argument("csda_version")
 @click.argument("tag")
-@click.option(
-    "--github-output",
-    is_flag=True,
-    help="Write output to GITHUB_OUTPUT environment variable",
-)
-def next_version_cmd(csda_version: str, tag: str, github_output: bool) -> None:
+def next_version_cmd(csda_version: str, tag: str) -> None:
     """Calculate the next version based on CSDA_VERSION and TAG."""
     version = get_next_version(csda_version, tag)
-    if github_output:
-        github_output_path = os.environ.get("GITHUB_OUTPUT")
-        if github_output_path:
-            with open(github_output_path, "a") as f:
-                f.write(f"version={version}\n")
-        else:
-            raise click.ClickException("GITHUB_OUTPUT environment variable not set")
-    else:
-        click.echo(version)
+    click.echo(version)
 
 
 @cli.command("next-csda-version")

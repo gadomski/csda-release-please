@@ -35,4 +35,6 @@ runs:
         echo "version=$CSDA_VERSION" >> "$GITHUB_OUTPUT"
     - id: calculate
       shell: bash
-      run: python ${{ github.action_path }}/src/csda_version/__init__.py next-version "${{ steps.csda-version.outputs.version }}" "${{ steps.last-tag.outputs.tag }}"
+      run: |
+        NEXT_VERSION=$(csda-version next-version "${{ steps.csda-version.outputs.version }}" "${{ steps.last-tag.outputs.tag }}")
+        echo "version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
