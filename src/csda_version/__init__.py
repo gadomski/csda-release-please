@@ -1,3 +1,7 @@
+import os
+import sys
+
+
 def get_next_version(csda_version: str, tag: str) -> str:
     """Calculate the next version based on the given tag."""
     csda_version_parts = csda_version.split(".")
@@ -14,3 +18,19 @@ def get_next_version(csda_version: str, tag: str) -> str:
         return ".".join(tag_parts[0:3] + [str(int(tag_parts[3]) + 1)])
     else:
         return ".".join(csda_version_parts + ["0"])
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        raise Exception(
+            f"Invalid number of arguments, expected 2, got {len(sys.argv) - 1}"
+        )
+    csda_version = sys.argv[1]
+    tag = sys.argv[2]
+    version = get_next_version(csda_version, tag)
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a") as f:
+            f.write(f"version={version}\n")
+    else:
+        print(version)
