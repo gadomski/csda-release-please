@@ -1,15 +1,9 @@
 # csda-release-please
 
-CSDA-specific versioning for **release-please**.
+A Github action to use [release-please](https://github.com/googleapis/release-please) with CSDA-specific versioning.
+To use:
 
-## Install
-
-```bash
-yarn install
-```
-
-## Build
-
-```bash
-yarn build
+```yaml
+- name: CSDA Release Please
+  uses: gadomski/csda-release-please@v1
 ```
