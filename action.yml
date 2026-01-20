@@ -1,0 +1,22 @@
+name: CSDA Release Please
+description: Run release-please with the CSDA versioning strategy pre-registered
+branding:
+  icon: tag
+  color: blue
+
+inputs:
+  token:
+    description: GitHub token for creating releases and pull requests
+    required: true
+  config-file:
+    description: Path to release-please-config.json
+    required: false
+    default: release-please-config.json
+  manifest-file:
+    description: Path to .release-please-manifest.json
+    required: false
+    default: .release-please-manifest.json
+
+runs:
+  using: node20
+  main: dist/action.js

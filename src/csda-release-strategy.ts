@@ -9,7 +9,7 @@ import type { ConventionalCommit } from "release-please/build/src/commit.js";
 const DEFAULT_VERSION_URL =
   "https://raw.githubusercontent.com/gadomski/csda-release-please/refs/heads/main/version.txt";
 
-export interface CsdaReleaseStrategyOptions {
+export interface CsdaVersioningStrategyOptions {
   baseVersion: string;
 }
 
@@ -47,10 +47,10 @@ export class CsdaVersionUpdate implements VersionUpdater {
   }
 }
 
-export class CsdaReleaseStrategy implements VersioningStrategy {
+export class CsdaVersioningStrategy implements VersioningStrategy {
   private baseVersion: string;
 
-  constructor(options: CsdaReleaseStrategyOptions) {
+  constructor(options: CsdaVersioningStrategyOptions) {
     this.baseVersion = options.baseVersion;
   }
 
@@ -80,6 +80,6 @@ export async function registerCsdaReleaseStrategy(
 
   registerVersioningStrategy(
     name,
-    () => new CsdaReleaseStrategy({ baseVersion }),
+    () => new CsdaVersioningStrategy({ baseVersion }),
   );
 }
