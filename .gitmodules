@@ -1,0 +1,3 @@
+[submodule "release-please-action"]
+	path = release-please-action
+	url = git@github.com:googleapis/release-please-action.git

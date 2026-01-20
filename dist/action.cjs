@@ -401,7 +401,7 @@ var require_tunnel = __commonJS({
         connectOptions.headers = connectOptions.headers || {};
         connectOptions.headers["Proxy-Authorization"] = "Basic " + new Buffer(connectOptions.proxyAuth).toString("base64");
       }
-      debug("making CONNECT request");
+      debug2("making CONNECT request");
       var connectReq = self2.request(connectOptions);
       connectReq.useChunkedEncodingByDefault = false;
       connectReq.once("response", onResponse);
@@ -421,7 +421,7 @@ var require_tunnel = __commonJS({
         connectReq.removeAllListeners();
         socket.removeAllListeners();
         if (res.statusCode !== 200) {
-          debug(
+          debug2(
             "tunneling socket could not be established, statusCode=%d",
             res.statusCode
           );
@@ -433,7 +433,7 @@ var require_tunnel = __commonJS({
           return;
         }
         if (head.length > 0) {
-          debug("got illegal response body from proxy");
+          debug2("got illegal response body from proxy");
           socket.destroy();
           var error = new Error("got illegal response body from proxy");
           error.code = "ECONNRESET";
@@ -441,13 +441,13 @@ var require_tunnel = __commonJS({
           self2.removeSocket(placeholder);
           return;
         }
-        debug("tunneling connection has established");
+        debug2("tunneling connection has established");
         self2.sockets[self2.sockets.indexOf(placeholder)] = socket;
         return cb(socket);
       }
       function onError(cause) {
         connectReq.removeAllListeners();
-        debug(
+        debug2(
           "tunneling socket could not be established, cause=%s\n",
           cause.message,
           cause.stack
@@ -509,9 +509,9 @@ var require_tunnel = __commonJS({
       }
       return target;
     }
-    var debug;
+    var debug2;
     if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
-      debug = function() {
+      debug2 = function() {
         var args = Array.prototype.slice.call(arguments);
         if (typeof args[0] === "string") {
           args[0] = "TUNNEL: " + args[0];
@@ -521,10 +521,10 @@ var require_tunnel = __commonJS({
         console.error.apply(console, args);
       };
     } else {
-      debug = function() {
+      debug2 = function() {
       };
     }
-    exports2.debug = debug;
+    exports2.debug = debug2;
   }
 });
 
@@ -17589,12 +17589,12 @@ var require_lib = __commonJS({
             throw new Error("Client has already been disposed.");
           }
           const parsedUrl = new URL(requestUrl);
-          let info = this._prepareRequest(verb, parsedUrl, headers);
+          let info2 = this._prepareRequest(verb, parsedUrl, headers);
           const maxTries = this._allowRetries && RetryableHttpVerbs.includes(verb) ? this._maxRetries + 1 : 1;
           let numTries = 0;
           let response;
           do {
-            response = yield this.requestRaw(info, data);
+            response = yield this.requestRaw(info2, data);
             if (response && response.message && response.message.statusCode === HttpCodes.Unauthorized) {
               let authenticationHandler;
               for (const handler of this.handlers) {
@@ -17604,7 +17604,7 @@ var require_lib = __commonJS({
                 }
               }
               if (authenticationHandler) {
-                return authenticationHandler.handleAuthentication(this, info, data);
+                return authenticationHandler.handleAuthentication(this, info2, data);
               } else {
                 return response;
               }
@@ -17627,8 +17627,8 @@ var require_lib = __commonJS({
                   }
                 }
               }
-              info = this._prepareRequest(verb, parsedRedirectUrl, headers);
-              response = yield this.requestRaw(info, data);
+              info2 = this._prepareRequest(verb, parsedRedirectUrl, headers);
+              response = yield this.requestRaw(info2, data);
               redirectsRemaining--;
             }
             if (!response.message.statusCode || !HttpResponseRetryCodes.includes(response.message.statusCode)) {
@@ -17657,7 +17657,7 @@ var require_lib = __commonJS({
        * @param info
        * @param data
        */
-      requestRaw(info, data) {
+      requestRaw(info2, data) {
         return __awaiter(this, void 0, void 0, function* () {
           return new Promise((resolve, reject) => {
             function callbackForResult(err, res) {
@@ -17669,7 +17669,7 @@ var require_lib = __commonJS({
                 resolve(res);
               }
             }
-            this.requestRawWithCallback(info, data, callbackForResult);
+            this.requestRawWithCallback(info2, data, callbackForResult);
           });
         });
       }
@@ -17679,12 +17679,12 @@ var require_lib = __commonJS({
        * @param data
        * @param onResult
        */
-      requestRawWithCallback(info, data, onResult) {
+      requestRawWithCallback(info2, data, onResult) {
         if (typeof data === "string") {
-          if (!info.options.headers) {
-            info.options.headers = {};
+          if (!info2.options.headers) {
+            info2.options.headers = {};
           }
-          info.options.headers["Content-Length"] = Buffer.byteLength(data, "utf8");
+          info2.options.headers["Content-Length"] = Buffer.byteLength(data, "utf8");
         }
         let callbackCalled = false;
         function handleResult(err, res) {
@@ -17693,7 +17693,7 @@ var require_lib = __commonJS({
             onResult(err, res);
           }
         }
-        const req = info.httpModule.request(info.options, (msg) => {
+        const req = info2.httpModule.request(info2.options, (msg) => {
           const res = new HttpClientResponse(msg);
           handleResult(void 0, res);
         });
@@ -17705,7 +17705,7 @@ var require_lib = __commonJS({
           if (socket) {
             socket.end();
           }
-          handleResult(new Error(`Request timeout: ${info.options.path}`));
+          handleResult(new Error(`Request timeout: ${info2.options.path}`));
         });
         req.on("error", function(err) {
           handleResult(err);
@@ -17741,27 +17741,27 @@ var require_lib = __commonJS({
         return this._getProxyAgentDispatcher(parsedUrl, proxyUrl);
       }
       _prepareRequest(method, requestUrl, headers) {
-        const info = {};
-        info.parsedUrl = requestUrl;
-        const usingSsl = info.parsedUrl.protocol === "https:";
-        info.httpModule = usingSsl ? https : http;
+        const info2 = {};
+        info2.parsedUrl = requestUrl;
+        const usingSsl = info2.parsedUrl.protocol === "https:";
+        info2.httpModule = usingSsl ? https : http;
         const defaultPort = usingSsl ? 443 : 80;
-        info.options = {};
-        info.options.host = info.parsedUrl.hostname;
-        info.options.port = info.parsedUrl.port ? parseInt(info.parsedUrl.port) : defaultPort;
-        info.options.path = (info.parsedUrl.pathname || "") + (info.parsedUrl.search || "");
-        info.options.method = method;
-        info.options.headers = this._mergeHeaders(headers);
+        info2.options = {};
+        info2.options.host = info2.parsedUrl.hostname;
+        info2.options.port = info2.parsedUrl.port ? parseInt(info2.parsedUrl.port) : defaultPort;
+        info2.options.path = (info2.parsedUrl.pathname || "") + (info2.parsedUrl.search || "");
+        info2.options.method = method;
+        info2.options.headers = this._mergeHeaders(headers);
         if (this.userAgent != null) {
-          info.options.headers["user-agent"] = this.userAgent;
+          info2.options.headers["user-agent"] = this.userAgent;
         }
-        info.options.agent = this._getAgent(info.parsedUrl);
+        info2.options.agent = this._getAgent(info2.parsedUrl);
         if (this.handlers) {
           for (const handler of this.handlers) {
-            handler.prepareRequest(info.options);
+            handler.prepareRequest(info2.options);
           }
         }
-        return info;
+        return info2;
       }
       _mergeHeaders(headers) {
         if (this.requestOptions && this.requestOptions.headers) {
@@ -19701,7 +19701,7 @@ var require_core = __commonJS({
       return inputs.map((input) => input.trim());
     }
     exports2.getMultilineInput = getMultilineInput;
-    function getBooleanInput(name2, options) {
+    function getBooleanInput2(name2, options) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
       const val = getInput2(name2, options);
@@ -19712,7 +19712,7 @@ var require_core = __commonJS({
       throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name2}
 Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
-    exports2.getBooleanInput = getBooleanInput;
+    exports2.getBooleanInput = getBooleanInput2;
     function setOutput2(name2, value) {
       const filePath = process.env["GITHUB_OUTPUT"] || "";
       if (filePath) {
@@ -19726,19 +19726,19 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       (0, command_1.issue)("echo", enabled ? "on" : "off");
     }
     exports2.setCommandEcho = setCommandEcho;
-    function setFailed2(message) {
+    function setFailed3(message) {
       process.exitCode = ExitCode.Failure;
       error(message);
     }
-    exports2.setFailed = setFailed2;
+    exports2.setFailed = setFailed3;
     function isDebug() {
       return process.env["RUNNER_DEBUG"] === "1";
     }
     exports2.isDebug = isDebug;
-    function debug(message) {
+    function debug2(message) {
       (0, command_1.issueCommand)("debug", {}, message);
     }
-    exports2.debug = debug;
+    exports2.debug = debug2;
     function error(message, properties = {}) {
       (0, command_1.issueCommand)("error", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
@@ -19751,10 +19751,10 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       (0, command_1.issueCommand)("notice", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
     exports2.notice = notice;
-    function info(message) {
+    function info2(message) {
       process.stdout.write(message + os.EOL);
     }
-    exports2.info = info;
+    exports2.info = info2;
     function startGroup(name2) {
       (0, command_1.issue)("group", name2);
     }
@@ -19921,9 +19921,9 @@ var require_constants6 = __commonJS({
 var require_debug = __commonJS({
   "../../../.yarn/berry/cache/semver-npm-7.7.3-9cf7b3b46c-10c0.zip/node_modules/semver/internal/debug.js"(exports2, module2) {
     "use strict";
-    var debug = typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...args) => console.error("SEMVER", ...args) : () => {
+    var debug2 = typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...args) => console.error("SEMVER", ...args) : () => {
     };
-    module2.exports = debug;
+    module2.exports = debug2;
   }
 });
 
@@ -19936,7 +19936,7 @@ var require_re = __commonJS({
       MAX_SAFE_BUILD_LENGTH,
       MAX_LENGTH
     } = require_constants6();
-    var debug = require_debug();
+    var debug2 = require_debug();
     exports2 = module2.exports = {};
     var re = exports2.re = [];
     var safeRe = exports2.safeRe = [];
@@ -19959,7 +19959,7 @@ var require_re = __commonJS({
     var createToken = (name2, value, isGlobal) => {
       const safe = makeSafeRegex(value);
       const index = R++;
-      debug(name2, index, value);
+      debug2(name2, index, value);
       t[name2] = index;
       src[index] = value;
       safeSrc[index] = safe;
@@ -20063,7 +20063,7 @@ var require_identifiers = __commonJS({
 var require_semver = __commonJS({
   "../../../.yarn/berry/cache/semver-npm-7.7.3-9cf7b3b46c-10c0.zip/node_modules/semver/classes/semver.js"(exports2, module2) {
     "use strict";
-    var debug = require_debug();
+    var debug2 = require_debug();
     var { MAX_LENGTH, MAX_SAFE_INTEGER } = require_constants6();
     var { safeRe: re, t } = require_re();
     var parseOptions = require_parse_options();
@@ -20085,7 +20085,7 @@ var require_semver = __commonJS({
             `version is longer than ${MAX_LENGTH} characters`
           );
         }
-        debug("SemVer", version, options);
+        debug2("SemVer", version, options);
         this.options = options;
         this.loose = !!options.loose;
         this.includePrerelease = !!options.includePrerelease;
@@ -20133,7 +20133,7 @@ var require_semver = __commonJS({
         return this.version;
       }
       compare(other) {
-        debug("SemVer.compare", this.version, this.options, other);
+        debug2("SemVer.compare", this.version, this.options, other);
         if (!(other instanceof _SemVer)) {
           if (typeof other === "string" && other === this.version) {
             return 0;
@@ -20184,7 +20184,7 @@ var require_semver = __commonJS({
         do {
           const a = this.prerelease[i];
           const b = other.prerelease[i];
-          debug("prerelease compare", i, a, b);
+          debug2("prerelease compare", i, a, b);
           if (a === void 0 && b === void 0) {
             return 0;
           } else if (b === void 0) {
@@ -20206,7 +20206,7 @@ var require_semver = __commonJS({
         do {
           const a = this.build[i];
           const b = other.build[i];
-          debug("build compare", i, a, b);
+          debug2("build compare", i, a, b);
           if (a === void 0 && b === void 0) {
             return 0;
           } else if (b === void 0) {
@@ -20834,21 +20834,21 @@ var require_range = __commonJS({
         const loose = this.options.loose;
         const hr = loose ? re[t.HYPHENRANGELOOSE] : re[t.HYPHENRANGE];
         range = range.replace(hr, hyphenReplace(this.options.includePrerelease));
-        debug("hyphen replace", range);
+        debug2("hyphen replace", range);
         range = range.replace(re[t.COMPARATORTRIM], comparatorTrimReplace);
-        debug("comparator trim", range);
+        debug2("comparator trim", range);
         range = range.replace(re[t.TILDETRIM], tildeTrimReplace);
-        debug("tilde trim", range);
+        debug2("tilde trim", range);
         range = range.replace(re[t.CARETTRIM], caretTrimReplace);
-        debug("caret trim", range);
+        debug2("caret trim", range);
         let rangeList = range.split(" ").map((comp) => parseComparator(comp, this.options)).join(" ").split(/\s+/).map((comp) => replaceGTE0(comp, this.options));
         if (loose) {
           rangeList = rangeList.filter((comp) => {
-            debug("loose invalid filter", comp, this.options);
+            debug2("loose invalid filter", comp, this.options);
             return !!comp.match(re[t.COMPARATORLOOSE]);
           });
         }
-        debug("range list", rangeList);
+        debug2("range list", rangeList);
         const rangeMap = /* @__PURE__ */ new Map();
         const comparators = rangeList.map((comp) => new Comparator(comp, this.options));
         for (const comp of comparators) {
@@ -20903,7 +20903,7 @@ var require_range = __commonJS({
     var cache = new LRU();
     var parseOptions = require_parse_options();
     var Comparator = require_comparator();
-    var debug = require_debug();
+    var debug2 = require_debug();
     var SemVer = require_semver();
     var {
       safeRe: re,
@@ -20929,15 +20929,15 @@ var require_range = __commonJS({
     };
     var parseComparator = (comp, options) => {
       comp = comp.replace(re[t.BUILD], "");
-      debug("comp", comp, options);
+      debug2("comp", comp, options);
       comp = replaceCarets(comp, options);
-      debug("caret", comp);
+      debug2("caret", comp);
       comp = replaceTildes(comp, options);
-      debug("tildes", comp);
+      debug2("tildes", comp);
       comp = replaceXRanges(comp, options);
-      debug("xrange", comp);
+      debug2("xrange", comp);
       comp = replaceStars(comp, options);
-      debug("stars", comp);
+      debug2("stars", comp);
       return comp;
     };
     var isX = (id) => !id || id.toLowerCase() === "x" || id === "*";
@@ -20947,7 +20947,7 @@ var require_range = __commonJS({
     var replaceTilde = (comp, options) => {
       const r = options.loose ? re[t.TILDELOOSE] : re[t.TILDE];
       return comp.replace(r, (_, M, m, p, pr) => {
-        debug("tilde", comp, _, M, m, p, pr);
+        debug2("tilde", comp, _, M, m, p, pr);
         let ret;
         if (isX(M)) {
           ret = "";
@@ -20956,12 +20956,12 @@ var require_range = __commonJS({
         } else if (isX(p)) {
           ret = `>=${M}.${m}.0 <${M}.${+m + 1}.0-0`;
         } else if (pr) {
-          debug("replaceTilde pr", pr);
+          debug2("replaceTilde pr", pr);
           ret = `>=${M}.${m}.${p}-${pr} <${M}.${+m + 1}.0-0`;
         } else {
           ret = `>=${M}.${m}.${p} <${M}.${+m + 1}.0-0`;
         }
-        debug("tilde return", ret);
+        debug2("tilde return", ret);
         return ret;
       });
     };
@@ -20969,11 +20969,11 @@ var require_range = __commonJS({
       return comp.trim().split(/\s+/).map((c) => replaceCaret(c, options)).join(" ");
     };
     var replaceCaret = (comp, options) => {
-      debug("caret", comp, options);
+      debug2("caret", comp, options);
       const r = options.loose ? re[t.CARETLOOSE] : re[t.CARET];
       const z = options.includePrerelease ? "-0" : "";
       return comp.replace(r, (_, M, m, p, pr) => {
-        debug("caret", comp, _, M, m, p, pr);
+        debug2("caret", comp, _, M, m, p, pr);
         let ret;
         if (isX(M)) {
           ret = "";
@@ -20986,7 +20986,7 @@ var require_range = __commonJS({
             ret = `>=${M}.${m}.0${z} <${+M + 1}.0.0-0`;
           }
         } else if (pr) {
-          debug("replaceCaret pr", pr);
+          debug2("replaceCaret pr", pr);
           if (M === "0") {
             if (m === "0") {
               ret = `>=${M}.${m}.${p}-${pr} <${M}.${m}.${+p + 1}-0`;
@@ -20997,7 +20997,7 @@ var require_range = __commonJS({
             ret = `>=${M}.${m}.${p}-${pr} <${+M + 1}.0.0-0`;
           }
         } else {
-          debug("no pr");
+          debug2("no pr");
           if (M === "0") {
             if (m === "0") {
               ret = `>=${M}.${m}.${p}${z} <${M}.${m}.${+p + 1}-0`;
@@ -21008,19 +21008,19 @@ var require_range = __commonJS({
             ret = `>=${M}.${m}.${p} <${+M + 1}.0.0-0`;
           }
         }
-        debug("caret return", ret);
+        debug2("caret return", ret);
         return ret;
       });
     };
     var replaceXRanges = (comp, options) => {
-      debug("replaceXRanges", comp, options);
+      debug2("replaceXRanges", comp, options);
       return comp.split(/\s+/).map((c) => replaceXRange(c, options)).join(" ");
     };
     var replaceXRange = (comp, options) => {
       comp = comp.trim();
       const r = options.loose ? re[t.XRANGELOOSE] : re[t.XRANGE];
       return comp.replace(r, (ret, gtlt, M, m, p, pr) => {
-        debug("xRange", comp, ret, gtlt, M, m, p, pr);
+        debug2("xRange", comp, ret, gtlt, M, m, p, pr);
         const xM = isX(M);
         const xm = xM || isX(m);
         const xp = xm || isX(p);
@@ -21067,16 +21067,16 @@ var require_range = __commonJS({
         } else if (xp) {
           ret = `>=${M}.${m}.0${pr} <${M}.${+m + 1}.0-0`;
         }
-        debug("xRange return", ret);
+        debug2("xRange return", ret);
         return ret;
       });
     };
     var replaceStars = (comp, options) => {
-      debug("replaceStars", comp, options);
+      debug2("replaceStars", comp, options);
       return comp.trim().replace(re[t.STAR], "");
     };
     var replaceGTE0 = (comp, options) => {
-      debug("replaceGTE0", comp, options);
+      debug2("replaceGTE0", comp, options);
       return comp.trim().replace(re[options.includePrerelease ? t.GTE0PRE : t.GTE0], "");
     };
     var hyphenReplace = (incPr) => ($0, from, fM, fm, fp, fpr, fb, to, tM, tm, tp, tpr) => {
@@ -21114,7 +21114,7 @@ var require_range = __commonJS({
       }
       if (version.prerelease.length && !options.includePrerelease) {
         for (let i = 0; i < set.length; i++) {
-          debug(set[i].semver);
+          debug2(set[i].semver);
           if (set[i].semver === Comparator.ANY) {
             continue;
           }
@@ -21151,7 +21151,7 @@ var require_comparator = __commonJS({
           }
         }
         comp = comp.trim().split(/\s+/).join(" ");
-        debug("comparator", comp, options);
+        debug2("comparator", comp, options);
         this.options = options;
         this.loose = !!options.loose;
         this.parse(comp);
@@ -21160,7 +21160,7 @@ var require_comparator = __commonJS({
         } else {
           this.value = this.operator + this.semver.version;
         }
-        debug("comp", this);
+        debug2("comp", this);
       }
       parse(comp) {
         const r = this.options.loose ? re[t.COMPARATORLOOSE] : re[t.COMPARATOR];
@@ -21182,7 +21182,7 @@ var require_comparator = __commonJS({
         return this.value;
       }
       test(version) {
-        debug("Comparator.test", version, this.options.loose);
+        debug2("Comparator.test", version, this.options.loose);
         if (this.semver === ANY || version === ANY) {
           return true;
         }
@@ -21239,7 +21239,7 @@ var require_comparator = __commonJS({
     var parseOptions = require_parse_options();
     var { safeRe: re, t } = require_re();
     var cmp = require_cmp();
-    var debug = require_debug();
+    var debug2 = require_debug();
     var SemVer = require_semver();
     var Range = require_range();
   }
@@ -26649,8 +26649,8 @@ var require_base = __commonJS({
     var _logger = require_logger2();
     var _logger2 = _interopRequireDefault(_logger);
     var _internalProtoAccess = require_proto_access();
-    var VERSION = "4.7.8";
-    exports2.VERSION = VERSION;
+    var VERSION2 = "4.7.8";
+    exports2.VERSION = VERSION2;
     var COMPILER_REVISION = 8;
     exports2.COMPILER_REVISION = COMPILER_REVISION;
     var LAST_COMPATIBLE_COMPILER_REVISION = 7;
@@ -57813,7 +57813,7 @@ var require_log2 = __commonJS({
   "../../../.yarn/berry/cache/yaml-npm-2.8.2-6cbf7c73c4-10c0.zip/node_modules/yaml/dist/log.js"(exports2) {
     "use strict";
     var node_process = require("process");
-    function debug(logLevel, ...messages) {
+    function debug2(logLevel, ...messages) {
       if (logLevel === "debug")
         console.log(...messages);
     }
@@ -57825,7 +57825,7 @@ var require_log2 = __commonJS({
           console.warn(warning);
       }
     }
-    exports2.debug = debug;
+    exports2.debug = debug2;
     exports2.warn = warn;
   }
 });
@@ -73355,8 +73355,8 @@ var require_dist_node2 = __commonJS({
     });
     module2.exports = __toCommonJS2(dist_src_exports2);
     var import_universal_user_agent = require_dist_node();
-    var VERSION = "9.0.6";
-    var userAgent = `octokit-endpoint.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`;
+    var VERSION2 = "9.0.6";
+    var userAgent = `octokit-endpoint.js/${VERSION2} ${(0, import_universal_user_agent.getUserAgent)()}`;
     var DEFAULTS = {
       method: "GET",
       baseUrl: "https://api.github.com",
@@ -73886,7 +73886,7 @@ var require_dist_node5 = __commonJS({
     module2.exports = __toCommonJS2(dist_src_exports2);
     var import_endpoint = require_dist_node2();
     var import_universal_user_agent = require_dist_node();
-    var VERSION = "8.4.1";
+    var VERSION2 = "8.4.1";
     function isPlainObject(value) {
       if (typeof value !== "object" || value === null)
         return false;
@@ -74062,7 +74062,7 @@ var require_dist_node5 = __commonJS({
     }
     var request = withDefaults(import_endpoint.endpoint, {
       headers: {
-        "user-agent": `octokit-request.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`
+        "user-agent": `octokit-request.js/${VERSION2} ${(0, import_universal_user_agent.getUserAgent)()}`
       }
     });
   }
@@ -74098,7 +74098,7 @@ var require_dist_node6 = __commonJS({
     module2.exports = __toCommonJS2(index_exports);
     var import_request3 = require_dist_node5();
     var import_universal_user_agent = require_dist_node();
-    var VERSION = "7.1.1";
+    var VERSION2 = "7.1.1";
     var import_request2 = require_dist_node5();
     var import_request = require_dist_node5();
     function _buildMessageForResponseErrors(data) {
@@ -74191,7 +74191,7 @@ var require_dist_node6 = __commonJS({
     }
     var graphql2 = withDefaults(import_request3.request, {
       headers: {
-        "user-agent": `octokit-graphql.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`
+        "user-agent": `octokit-graphql.js/${VERSION2} ${(0, import_universal_user_agent.getUserAgent)()}`
       },
       method: "POST",
       url: "/graphql"
@@ -74307,7 +74307,7 @@ var require_dist_node8 = __commonJS({
     var import_request = require_dist_node5();
     var import_graphql = require_dist_node6();
     var import_auth_token = require_dist_node7();
-    var VERSION = "5.2.2";
+    var VERSION2 = "5.2.2";
     var noop = () => {
     };
     var consoleWarn = console.warn.bind(console);
@@ -74327,10 +74327,10 @@ var require_dist_node8 = __commonJS({
       }
       return logger;
     }
-    var userAgentTrail = `octokit-core.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`;
+    var userAgentTrail = `octokit-core.js/${VERSION2} ${(0, import_universal_user_agent.getUserAgent)()}`;
     var Octokit = class {
       static {
-        this.VERSION = VERSION;
+        this.VERSION = VERSION2;
       }
       static defaults(defaults) {
         const OctokitWithDefaults = class extends this {
@@ -74468,7 +74468,7 @@ var require_dist_node9 = __commonJS({
       requestLog: () => requestLog
     });
     module2.exports = __toCommonJS2(dist_src_exports2);
-    var VERSION = "4.0.1";
+    var VERSION2 = "4.0.1";
     function requestLog(octokit) {
       octokit.hook.wrap("request", (request, options) => {
         octokit.log.debug("request", options);
@@ -74488,7 +74488,7 @@ var require_dist_node9 = __commonJS({
         });
       });
     }
-    requestLog.VERSION = VERSION;
+    requestLog.VERSION = VERSION2;
   }
 });
 
@@ -74521,7 +74521,7 @@ var require_dist_node10 = __commonJS({
       paginatingEndpoints: () => paginatingEndpoints
     });
     module2.exports = __toCommonJS2(index_exports);
-    var VERSION = "11.4.4-cjs.2";
+    var VERSION2 = "11.4.4-cjs.2";
     function normalizePaginatedListResponse(response) {
       if (!response.data) {
         return {
@@ -74883,7 +74883,7 @@ var require_dist_node10 = __commonJS({
         })
       };
     }
-    paginateRest.VERSION = VERSION;
+    paginateRest.VERSION = VERSION2;
   }
 });
 
@@ -74914,7 +74914,7 @@ var require_dist_node11 = __commonJS({
       restEndpointMethods: () => restEndpointMethods
     });
     module2.exports = __toCommonJS2(index_exports);
-    var VERSION = "13.3.2-cjs.1";
+    var VERSION2 = "13.3.2-cjs.1";
     var Endpoints = {
       actions: {
         addCustomLabelsToSelfHostedRunnerForOrg: [
@@ -77108,7 +77108,7 @@ var require_dist_node11 = __commonJS({
         rest: api
       };
     }
-    restEndpointMethods.VERSION = VERSION;
+    restEndpointMethods.VERSION = VERSION2;
     function legacyRestEndpointMethods(octokit) {
       const api = endpointsToMethods(octokit);
       return {
@@ -77116,7 +77116,7 @@ var require_dist_node11 = __commonJS({
         rest: api
       };
     }
-    legacyRestEndpointMethods.VERSION = VERSION;
+    legacyRestEndpointMethods.VERSION = VERSION2;
   }
 });
 
@@ -77150,13 +77150,13 @@ var require_dist_node12 = __commonJS({
     var import_plugin_request_log = require_dist_node9();
     var import_plugin_paginate_rest = require_dist_node10();
     var import_plugin_rest_endpoint_methods = require_dist_node11();
-    var VERSION = "20.1.2";
+    var VERSION2 = "20.1.2";
     var Octokit = import_core.Octokit.plugin(
       import_plugin_request_log.requestLog,
       import_plugin_rest_endpoint_methods.legacyRestEndpointMethods,
       import_plugin_paginate_rest.paginateRest
     ).defaults({
-      userAgent: `octokit-rest.js/${VERSION}`
+      userAgent: `octokit-rest.js/${VERSION2}`
     });
   }
 });
@@ -78503,11 +78503,11 @@ var require_common4 = __commonJS({
         let enableOverride = null;
         let namespacesCache;
         let enabledCache;
-        function debug(...args) {
-          if (!debug.enabled) {
+        function debug2(...args) {
+          if (!debug2.enabled) {
             return;
           }
-          const self2 = debug;
+          const self2 = debug2;
           const curr = Number(/* @__PURE__ */ new Date());
           const ms = curr - (prevTime || curr);
           self2.diff = ms;
@@ -78537,12 +78537,12 @@ var require_common4 = __commonJS({
           const logFn = self2.log || createDebug.log;
           logFn.apply(self2, args);
         }
-        debug.namespace = namespace;
-        debug.useColors = createDebug.useColors();
-        debug.color = createDebug.selectColor(namespace);
-        debug.extend = extend;
-        debug.destroy = createDebug.destroy;
-        Object.defineProperty(debug, "enabled", {
+        debug2.namespace = namespace;
+        debug2.useColors = createDebug.useColors();
+        debug2.color = createDebug.selectColor(namespace);
+        debug2.extend = extend;
+        debug2.destroy = createDebug.destroy;
+        Object.defineProperty(debug2, "enabled", {
           enumerable: true,
           configurable: false,
           get: () => {
@@ -78560,9 +78560,9 @@ var require_common4 = __commonJS({
           }
         });
         if (typeof createDebug.init === "function") {
-          createDebug.init(debug);
+          createDebug.init(debug2);
         }
-        return debug;
+        return debug2;
       }
       function extend(namespace, delimiter) {
         const newDebug = createDebug(this.namespace + (typeof delimiter === "undefined" ? ":" : delimiter) + namespace);
@@ -78972,11 +78972,11 @@ var require_node4 = __commonJS({
     function load() {
       return process.env.DEBUG;
     }
-    function init(debug) {
-      debug.inspectOpts = {};
+    function init(debug2) {
+      debug2.inspectOpts = {};
       const keys = Object.keys(exports2.inspectOpts);
       for (let i = 0; i < keys.length; i++) {
-        debug.inspectOpts[keys[i]] = exports2.inspectOpts[keys[i]];
+        debug2.inspectOpts[keys[i]] = exports2.inspectOpts[keys[i]];
       }
     }
     module2.exports = require_common4()(exports2);
@@ -79239,7 +79239,7 @@ var require_parse_proxy_response = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.parseProxyResponse = void 0;
     var debug_1 = __importDefault(require_src2());
-    var debug = (0, debug_1.default)("https-proxy-agent:parse-proxy-response");
+    var debug2 = (0, debug_1.default)("https-proxy-agent:parse-proxy-response");
     function parseProxyResponse(socket) {
       return new Promise((resolve, reject) => {
         let buffersLength = 0;
@@ -79258,12 +79258,12 @@ var require_parse_proxy_response = __commonJS({
         }
         function onend() {
           cleanup();
-          debug("onend");
+          debug2("onend");
           reject(new Error("Proxy connection ended before receiving CONNECT response"));
         }
         function onerror(err) {
           cleanup();
-          debug("onerror %o", err);
+          debug2("onerror %o", err);
           reject(err);
         }
         function ondata(b) {
@@ -79272,7 +79272,7 @@ var require_parse_proxy_response = __commonJS({
           const buffered = Buffer.concat(buffers, buffersLength);
           const endOfHeaders = buffered.indexOf("\r\n\r\n");
           if (endOfHeaders === -1) {
-            debug("have not received end of HTTP headers yet...");
+            debug2("have not received end of HTTP headers yet...");
             read();
             return;
           }
@@ -79305,7 +79305,7 @@ var require_parse_proxy_response = __commonJS({
               headers[key] = value;
             }
           }
-          debug("got proxy server response: %o %o", firstLine, headers);
+          debug2("got proxy server response: %o %o", firstLine, headers);
           cleanup();
           resolve({
             connect: {
@@ -79368,7 +79368,7 @@ var require_dist4 = __commonJS({
     var agent_base_1 = require_dist3();
     var url_1 = require("url");
     var parse_proxy_response_1 = require_parse_proxy_response();
-    var debug = (0, debug_1.default)("https-proxy-agent");
+    var debug2 = (0, debug_1.default)("https-proxy-agent");
     var setServernameFromNonIpHost = (options) => {
       if (options.servername === void 0 && options.host && !net.isIP(options.host)) {
         return {
@@ -79384,7 +79384,7 @@ var require_dist4 = __commonJS({
         this.options = { path: void 0 };
         this.proxy = typeof proxy === "string" ? new url_1.URL(proxy) : proxy;
         this.proxyHeaders = opts?.headers ?? {};
-        debug("Creating new HttpsProxyAgent instance: %o", this.proxy.href);
+        debug2("Creating new HttpsProxyAgent instance: %o", this.proxy.href);
         const host = (this.proxy.hostname || this.proxy.host).replace(/^\[|\]$/g, "");
         const port = this.proxy.port ? parseInt(this.proxy.port, 10) : this.proxy.protocol === "https:" ? 443 : 80;
         this.connectOpts = {
@@ -79406,10 +79406,10 @@ var require_dist4 = __commonJS({
         }
         let socket;
         if (proxy.protocol === "https:") {
-          debug("Creating `tls.Socket`: %o", this.connectOpts);
+          debug2("Creating `tls.Socket`: %o", this.connectOpts);
           socket = tls.connect(setServernameFromNonIpHost(this.connectOpts));
         } else {
-          debug("Creating `net.Socket`: %o", this.connectOpts);
+          debug2("Creating `net.Socket`: %o", this.connectOpts);
           socket = net.connect(this.connectOpts);
         }
         const headers = typeof this.proxyHeaders === "function" ? this.proxyHeaders() : { ...this.proxyHeaders };
@@ -79437,7 +79437,7 @@ var require_dist4 = __commonJS({
         if (connect.statusCode === 200) {
           req.once("socket", resume);
           if (opts.secureEndpoint) {
-            debug("Upgrading socket connection to TLS");
+            debug2("Upgrading socket connection to TLS");
             return tls.connect({
               ...omit(setServernameFromNonIpHost(opts), "host", "path", "port"),
               socket
@@ -79449,7 +79449,7 @@ var require_dist4 = __commonJS({
         const fakeSocket = new net.Socket({ writable: false });
         fakeSocket.readable = true;
         req.once("socket", (s) => {
-          debug("Replaying proxy buffer for failed request");
+          debug2("Replaying proxy buffer for failed request");
           (0, assert_1.default)(s.listenerCount("data") > 0);
           s.push(buffered);
           s.push(null);
@@ -79517,13 +79517,13 @@ var require_dist5 = __commonJS({
     var events_1 = require("events");
     var agent_base_1 = require_dist3();
     var url_1 = require("url");
-    var debug = (0, debug_1.default)("http-proxy-agent");
+    var debug2 = (0, debug_1.default)("http-proxy-agent");
     var HttpProxyAgent = class extends agent_base_1.Agent {
       constructor(proxy, opts) {
         super(opts);
         this.proxy = typeof proxy === "string" ? new url_1.URL(proxy) : proxy;
         this.proxyHeaders = opts?.headers ?? {};
-        debug("Creating new HttpProxyAgent instance: %o", this.proxy.href);
+        debug2("Creating new HttpProxyAgent instance: %o", this.proxy.href);
         const host = (this.proxy.hostname || this.proxy.host).replace(/^\[|\]$/g, "");
         const port = this.proxy.port ? parseInt(this.proxy.port, 10) : this.proxy.protocol === "https:" ? 443 : 80;
         this.connectOpts = {
@@ -79569,21 +79569,21 @@ var require_dist5 = __commonJS({
         }
         let first;
         let endOfHeaders;
-        debug("Regenerating stored HTTP header string for request");
+        debug2("Regenerating stored HTTP header string for request");
         req._implicitHeader();
         if (req.outputData && req.outputData.length > 0) {
-          debug("Patching connection write() output buffer with updated header");
+          debug2("Patching connection write() output buffer with updated header");
           first = req.outputData[0].data;
           endOfHeaders = first.indexOf("\r\n\r\n") + 4;
           req.outputData[0].data = req._header + first.substring(endOfHeaders);
-          debug("Output buffer: %o", req.outputData[0].data);
+          debug2("Output buffer: %o", req.outputData[0].data);
         }
         let socket;
         if (this.proxy.protocol === "https:") {
-          debug("Creating `tls.Socket`: %o", this.connectOpts);
+          debug2("Creating `tls.Socket`: %o", this.connectOpts);
           socket = tls.connect(this.connectOpts);
         } else {
-          debug("Creating `net.Socket`: %o", this.connectOpts);
+          debug2("Creating `net.Socket`: %o", this.connectOpts);
           socket = net.connect(this.connectOpts);
         }
         await (0, events_1.once)(socket, "connect");
@@ -81377,11 +81377,176 @@ var require_src3 = __commonJS({
 });
 
 // src/action.ts
-var core = __toESM(require_core(), 1);
-var import_release_please2 = __toESM(require_src3(), 1);
+var core2 = __toESM(require_core(), 1);
+
+// release-please-action/src/index.ts
+var core = __toESM(require_core());
+var import_release_please = __toESM(require_src3());
+var DEFAULT_CONFIG_FILE = "release-please-config.json";
+var DEFAULT_MANIFEST_FILE = ".release-please-manifest.json";
+var DEFAULT_GITHUB_API_URL = "https://api.github.com";
+var DEFAULT_GITHUB_GRAPHQL_URL = "https://api.github.com";
+var DEFAULT_GITHUB_SERVER_URL = "https://github.com";
+function parseInputs() {
+  const inputs = {
+    token: core.getInput("token", { required: true }),
+    releaseType: getOptionalInput("release-type"),
+    path: getOptionalInput("path"),
+    repoUrl: core.getInput("repo-url") || process.env.GITHUB_REPOSITORY || "",
+    targetBranch: getOptionalInput("target-branch"),
+    configFile: core.getInput("config-file") || DEFAULT_CONFIG_FILE,
+    manifestFile: core.getInput("manifest-file") || DEFAULT_MANIFEST_FILE,
+    githubApiUrl: core.getInput("github-api-url") || DEFAULT_GITHUB_API_URL,
+    githubGraphqlUrl: (core.getInput("github-graphql-url") || "").replace(/\/graphql$/, "") || DEFAULT_GITHUB_GRAPHQL_URL,
+    proxyServer: getOptionalInput("proxy-server"),
+    skipGitHubRelease: getOptionalBooleanInput("skip-github-release"),
+    skipGitHubPullRequest: getOptionalBooleanInput("skip-github-pull-request"),
+    skipLabeling: getOptionalBooleanInput("skip-labeling"),
+    fork: getOptionalBooleanInput("fork"),
+    includeComponentInTag: getOptionalBooleanInput("include-component-in-tag"),
+    changelogHost: core.getInput("changelog-host") || DEFAULT_GITHUB_SERVER_URL,
+    versioningStrategy: getOptionalInput("versioning-strategy"),
+    releaseAs: getOptionalInput("release-as")
+  };
+  return inputs;
+}
+function getOptionalInput(name2) {
+  return core.getInput(name2) || void 0;
+}
+function getOptionalBooleanInput(name2) {
+  const val = core.getInput(name2);
+  if (val === "" || val === void 0) {
+    return void 0;
+  }
+  return core.getBooleanInput(name2);
+}
+function loadOrBuildManifest(github, inputs) {
+  if (inputs.releaseType) {
+    core.debug("Building manifest from config");
+    return import_release_please.Manifest.fromConfig(
+      github,
+      github.repository.defaultBranch,
+      {
+        releaseType: inputs.releaseType,
+        includeComponentInTag: inputs.includeComponentInTag,
+        changelogHost: inputs.changelogHost,
+        versioning: inputs.versioningStrategy,
+        releaseAs: inputs.releaseAs
+      },
+      {
+        fork: inputs.fork,
+        skipLabeling: inputs.skipLabeling
+      },
+      inputs.path
+    );
+  }
+  const manifestOverrides = inputs.fork || inputs.skipLabeling ? {
+    fork: inputs.fork,
+    skipLabeling: inputs.skipLabeling
+  } : {};
+  core.debug("Loading manifest from config file");
+  return import_release_please.Manifest.fromManifest(
+    github,
+    github.repository.defaultBranch,
+    inputs.configFile,
+    inputs.manifestFile,
+    manifestOverrides
+  ).then((manifest) => {
+    if (inputs.changelogHost && inputs.changelogHost !== DEFAULT_GITHUB_SERVER_URL) {
+      core.debug(`Overriding changelogHost to: ${inputs.changelogHost}`);
+      for (const path in manifest.repositoryConfig) {
+        manifest.repositoryConfig[path].changelogHost = inputs.changelogHost;
+      }
+    }
+    return manifest;
+  });
+}
+async function main(fetchOverride) {
+  core.info(`Running release-please version: ${import_release_please.VERSION}`);
+  const inputs = parseInputs();
+  const github = await getGitHubInstance(inputs, fetchOverride);
+  if (!inputs.skipGitHubRelease) {
+    const manifest = await loadOrBuildManifest(github, inputs);
+    core.debug("Creating releases");
+    outputReleases(await manifest.createReleases());
+  }
+  if (!inputs.skipGitHubPullRequest) {
+    const manifest = await loadOrBuildManifest(github, inputs);
+    core.debug("Creating pull requests");
+    outputPRs(await manifest.createPullRequests());
+  }
+}
+function getGitHubInstance(inputs, fetchOverride) {
+  const [owner, repo] = inputs.repoUrl.split("/");
+  let proxy = void 0;
+  if (inputs.proxyServer) {
+    const [host, port] = inputs.proxyServer.split(":");
+    proxy = {
+      host,
+      port: parseInt(port)
+    };
+  }
+  const githubCreateOpts = {
+    proxy,
+    owner,
+    repo,
+    apiUrl: inputs.githubApiUrl,
+    graphqlUrl: inputs.githubGraphqlUrl,
+    token: inputs.token,
+    defaultBranch: inputs.targetBranch,
+    fetch: fetchOverride
+  };
+  return import_release_please.GitHub.create(githubCreateOpts);
+}
+function setPathOutput(path, key, value) {
+  if (path === ".") {
+    core.setOutput(key, value);
+  } else {
+    core.setOutput(`${path}--${key}`, value);
+  }
+}
+function outputReleases(releases) {
+  releases = releases.filter((release) => release !== void 0);
+  const pathsReleased = [];
+  core.setOutput("releases_created", releases.length > 0);
+  if (releases.length) {
+    for (const release of releases) {
+      if (!release) {
+        continue;
+      }
+      const path = release.path || ".";
+      if (path) {
+        pathsReleased.push(path);
+        setPathOutput(path, "release_created", true);
+      }
+      for (const [rawKey, value] of Object.entries(release)) {
+        let key = rawKey;
+        if (key === "tagName") key = "tag_name";
+        if (key === "uploadUrl") key = "upload_url";
+        if (key === "notes") key = "body";
+        if (key === "url") key = "html_url";
+        setPathOutput(path, key, value);
+      }
+    }
+  }
+  core.setOutput("paths_released", JSON.stringify(pathsReleased));
+}
+function outputPRs(prs) {
+  prs = prs.filter((pr) => pr !== void 0);
+  core.setOutput("prs_created", prs.length > 0);
+  if (prs.length) {
+    core.setOutput("pr", prs[0]);
+    core.setOutput("prs", JSON.stringify(prs));
+  }
+}
+if (require.main === module) {
+  main().catch((err) => {
+    core.setFailed(`release-please failed: ${err.message}`);
+  });
+}
 
 // src/csda-release-strategy.ts
-var import_release_please = __toESM(require_src3(), 1);
+var import_release_please2 = __toESM(require_src3(), 1);
 var import_version = __toESM(require_version(), 1);
 var DEFAULT_VERSION_URL = "https://raw.githubusercontent.com/gadomski/csda-release-please/refs/heads/main/version.txt";
 var CsdaVersionUpdate = class {
@@ -81429,34 +81594,15 @@ async function registerCsdaReleaseStrategy(name2 = "csda", versionUrl = DEFAULT_
     );
   }
   const baseVersion = (await response.text()).trim();
-  (0, import_release_please.registerVersioningStrategy)(
+  (0, import_release_please2.registerVersioningStrategy)(
     name2,
     () => new CsdaVersioningStrategy({ baseVersion })
   );
 }
 
 // src/action.ts
-async function main() {
-  await registerCsdaReleaseStrategy();
-  const token = core.getInput("token", { required: true });
-  const configFile = core.getInput("config-file");
-  const manifestFile = core.getInput("manifest-file");
-  const [owner, repo] = (process.env.GITHUB_REPOSITORY || "").split("/");
-  const gh = await import_release_please2.GitHub.create({ owner, repo, token });
-  const manifest = await import_release_please2.Manifest.fromManifest(
-    gh,
-    gh.repository.defaultBranch,
-    configFile,
-    manifestFile
-  );
-  const prs = (await manifest.createPullRequests()).filter((pr) => pr);
-  core.setOutput("prs_created", prs.length > 0);
-  if (prs.length) {
-    core.setOutput("pr", JSON.stringify(prs.map((pr) => pr.number)));
-  }
-}
-main().catch((err) => {
-  core.setFailed(`release-please failed: ${err.message}`);
+registerCsdaReleaseStrategy().then(() => main()).catch((err) => {
+  core2.setFailed(`release-please failed: ${err.message}`);
 });
 /*! Bundled license information:
 
