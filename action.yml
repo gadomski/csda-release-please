@@ -1,7 +1,7 @@
 name: CSDA Release Please
-description: Run release-please with the CSDA versioning strategy pre-registered
+description: Run release-please with the CSDA versioning strategy
 branding:
-  icon: tag
+  icon: radio
   color: blue
 
 inputs:
@@ -16,6 +16,10 @@ inputs:
     description: Path to .release-please-manifest.json
     required: false
     default: .release-please-manifest.json
+  versioning-strategy:
+    description: The versioning strategy to use
+    required: false
+    default: csda
 
 runs:
   using: node20
