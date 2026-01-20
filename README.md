@@ -20,6 +20,8 @@ To use with [release-please](https://github.com/googleapis/release-please):
 > You must use `release-type` in your Github Action YAML, you cannot use [Manifest Driven](https://github.com/googleapis/release-please/blob/main/docs/manifest-releaser.md) releasing.
 > This is because `release-as` is ignored for manifest-driven releases.
 
+To see this in action, check out https://github.com/gadomski/csdap-demo-repo.
+
 ## CSDA version
 
 A CSDA version is formatted like `vYY.PI.SP-X`, where:
